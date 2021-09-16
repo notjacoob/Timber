@@ -1,0 +1,27 @@
+{
+  "name": "timber",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/opus": "^0.5.3",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.6.0",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.1.0",
+    "ffmpeg-static": "^4.4.0",
+    "libsodium-wrappers": "^0.7.9",
+    "node": "^16.6.1",
+    "play-dl": "^0.9.9",
+    "typescript": "^4.4.3",
+    "ytdl-core": "^4.9.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "go": "tsc && node ./build/Bot.js",
+    "deploy": "node ./DeployCommands.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
