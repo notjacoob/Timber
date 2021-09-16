@@ -4,6 +4,10 @@ export interface Command {
     run(inter: CommandInteraction): void
 }
 
+export interface SubCommand {
+    run(inter:CommandInteraction,opts:any): void
+}
+
 export type PlayerState = {
     playing: boolean, response: "ok" | "error", error?: Array<PlayerError>
 }

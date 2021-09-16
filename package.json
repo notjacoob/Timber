@@ -23,5 +23,8 @@
     "deploy": "node ./DeployCommands.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "pm2": "^5.1.1"
+  }
 }
