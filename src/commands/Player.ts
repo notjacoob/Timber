@@ -42,116 +42,19 @@ export class CmdPlayer implements Command {
                         player._queue = new Array()
                         inter.reply("Cleared queue!")
                     } else if (arg1 == "join") {
-                        if (gm.voice.channel) {
-                            if (inter.guild?.me?.voice.channel) {
-                                inter.guild.me.voice.disconnect()
-                                const con = joinVoiceChannel({
-                                    channelId: gm.voice.channel.id,
-                                    guildId: inter.guild!!.id,
-                                    adapterCreator: inter.guild!!.voiceAdapterCreator
-                                })
-                            } else {
-                                const con = joinVoiceChannel({
-                                    channelId: gm.voice.channel.id,
-                                    guildId: inter.guild!!.id,
-                                    adapterCreator: inter.guild!!.voiceAdapterCreator
-                                })
-                            }
-                            inter.reply({content: `Joined ${inter.guild?.me?.voice.channel}`})
-                        } else {
-                            inter.reply("You are not in a voice channel!")
-                        }
+                        useSubCommand("PlayerJoin", inter, {gm:gm})
                     } else if (arg1 == "leave") {
-                        if (inter.guild?.me?.voice.channel) {
-                            if (inter.guild.me.voice.channel == gm.voice.channel) {
-                                player._queue = new Array()
-                                inter.guild.me.voice.disconnect()
-                                inter.reply("Left!")
-                            } else {
-                                inter.reply({content: 'You aren\'t in a voice channel with me!', ephemeral: true});
-                            }
-                        } else {
-                            inter.reply('I am not in a voice channel!'); 
-                        }
+                        useSubCommand("PlayerLeave", inter, {gm:gm, player:player})
                     } else if (arg1 == "pause") {
-                        if (inter.guild?.me?.voice.channel) {
-                            if (inter.guild.me.voice.channel == gm.voice.channel) {
-                                if (!(player._subscription!!.state.status == AudioPlayerStatus.Paused)) {
-                                    player._subscription!!.pause()
-                                    inter.reply("Paused!")
-                                } else {
-                                    inter.reply("Already playing!")
-                                }
-                            } else {
-                                inter.reply({content: 'You aren\'t in a voice channel with me!', ephemeral: true});
-                            }
-                        } else {
-                            inter.reply('I am not in a voice channel!');
-                        }
+                        useSubCommand("PlayerPause", inter, {gm:gm,player:player})
                     } else if (arg1 == "resume") {
-                        if (inter.guild?.me?.voice.channel) {
-                            if (inter.guild.me.voice.channel === gm.voice.channel) {
-                                if (player._subscription!!.state.status == AudioPlayerStatus.Paused) {
-                                    player._subscription!!.unpause()
-                                    inter.reply("Resumed!")
-                                } else {
-                                    inter.reply('Already playing!');
-                                }
-                            } else {
-                                inter.reply({content: 'You aren\'t in a voice channel with me!', ephemeral: true});
-                            }
-                        } else {
-                            inter.reply('I am not in a voice channel!');
-                        }
+                        useSubCommand("PlayerResume",inter,{gm:gm,player:player})
                     } else if (arg1 == "skip") {
-                        if (inter.guild?.me?.voice.channel) {
-                            if (inter.guild.me.voice.channel === gm.voice.channel) {
-                                player.skip(lg.getVoiceConnection!!).then(next => {
-                                    if (next.response != "ok") {
-                                        inter.reply('Encountered an error processing that!');
-                                    } else {
-                                       inter.reply('Skipped!');
-                                    }
-                                })
-                            } else {
-                                inter.reply({content: 'You aren\'t in a voice channel with me!', ephemeral: true});
-                            }
-                        } else {
-                            inter.reply('I am not in a voice channel!');
-                        }
+                        useSubCommand("PlayerSkip", inter, {gm:gm,player:player,lg:lg})
                     } else if (arg1 == "queue") {
-                        let pn = 1
-                        if (inter.options.getInteger("page")) {
-                            pn = inter.options.getInteger("page")!!
-                        }
-                        const page = player.paginate()[pn-1]
-                        if (page) {
-                            const embed = new MessageEmbed()
-                                .setAuthor("Timber | page " + pn)
-                            page.forEach(p => {
-                                embed.addField(p.song.video_details.title, "Queued by: "+p.queuedBy.user.username, false)
-                            })
-                            inter.reply({embeds:[embed]})
-                        } else {
-                            inter.reply({content:"Invalid page!", ephemeral: true})
-                        }
+                        useSubCommand("PlayerQueue", inter, {player:player})
                     } else if (arg1 == "current") {
-                        if (player._playing) {
-                            const embed = new MessageEmbed()
-                                .setTitle('Current song')
-                                .addFields(
-                                    { name: `Title`, value: `${player._current?.track.video_details.title}`, inline: false },
-                                    { name: 'Queued by', value: `${player._current?.by.user.username}`, inline: true },
-                                    { name: 'Channel', value: parseLength(player._current?.track.video_details.channel.name), inline: true },
-                                    { name: 'Length', value: new Date(Number(player._current?.track.video_details.durationInSec) * 1000).toISOString().substr(11, 8), inline: true },
-                                    { name: `Link`, value: `${player._current?.track.video_details.url}`, inline: false }
-                                )
-                                .setColor(`#${randomColor()}`)
-                                .setFooter('Timber');
-                            inter.reply({embeds:[embed]})
-                        } else {
-                            inter.reply('Nothing is playing!');
-                        }
+                        useSubCommand("PlayerCurrent", inter, {player:player})
                     } else if (arg1 == "loop") {
                         player._looping = true
                         inter.reply("Looping!")

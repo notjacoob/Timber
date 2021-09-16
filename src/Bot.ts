@@ -44,8 +44,9 @@ export const randomColor = (): string => {
     return Math.floor(Math.random()*16777215).toString(16); 
 }
 export const useSubCommand = (name: string, inter: CommandInteraction, opts: any) => {
-    if (subCommands.has(`sub_${name}`)) {
-        subCommands.get(`sub_${name}`)!!.run(inter, opts)
+    const scmdf = [...subCommands].filter(([k,v]) => k.toLowerCase() == name.toLowerCase())
+    if (scmdf.length > 0) {
+        scmdf[0][1].run(inter, opts)
     }
 }
 export const parseLength = (title:string|undefined):string=>{

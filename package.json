@@ -1,7 +1,7 @@
 {
   "name": "timber",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Music bot",
   "main": "index.js",
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
