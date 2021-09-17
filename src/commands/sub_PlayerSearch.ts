@@ -4,7 +4,7 @@ import * as play from 'play-dl'
 import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { QueuedMusic } from "../music/QueuedMusic";
-import { parseLength, randomColor } from "../Bot";
+import { parseLength, randomColor } from "../helpers/FuncHelper";
 
 class CmdSearch implements SubCommand {
     run = async (inter: CommandInteraction, opts:any) => {

@@ -1,4 +1,5 @@
 import { GuildMember } from "discord.js"
+import { Video } from "play-dl/dist/YouTube/classes/Video"
 import { VideoInfo } from "../Def"
 
 export class QueuedMusic {

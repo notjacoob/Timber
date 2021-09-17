@@ -1,4 +1,5 @@
 import { CommandInteraction, GuildMember } from "discord.js";
+import { Video } from "play-dl/dist/YouTube/classes/Video";
 
 export interface Command {
     run(inter: CommandInteraction): void

@@ -1,6 +1,6 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { SubCommand } from "../Def";
-import { parseLength, randomColor } from "../Bot"
+import { parseLength, randomColor } from "../helpers/FuncHelper";
 
 class PlayerCurrent implements SubCommand {
     run = (inter:CommandInteraction,opts:any)=>{

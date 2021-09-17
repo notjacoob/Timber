@@ -135,7 +135,7 @@ export class Player {
                 })
                 return { playing: true, response: "ok" }
             } else {
-                this._playing
+                this._playing = false
                 this._current = undefined
                 return { playing: false, response: "error", error: [PlayerError.NO_QUEUE] }
             }
@@ -153,7 +153,7 @@ export class Player {
         }
     }
     paginate = (): Array<Array<QueuedMusic>> => {
-        const len = Math.ceil(this._queue.length > 5 ? this._queue.length / 5 : 1)
+        const len = Math.ceil(this._queue.length > 7 ? this._queue.length / 7 : 1)
         const pages: Array<Array<QueuedMusic>> = []
         for (let i = 0; i < len; i++) {
             pages[i] = new Array()
@@ -162,7 +162,7 @@ export class Player {
         let page = 0
         this._queue.forEach(m => {
             pages[page][done] = m
-            if (done == 5) {
+            if (done == 7) {
                 done = 0
                 page++
                 return
