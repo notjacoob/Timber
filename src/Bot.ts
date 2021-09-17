@@ -5,7 +5,7 @@ const config = require("../config.json")
 
 
 const intents = new Intents()
-intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS)
+intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGES)
 export const client = new Client({intents: intents})
 
 const commands: Map<String, Command> = new Map()

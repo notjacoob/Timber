@@ -9,6 +9,7 @@ class PlayerAdd implements SubCommand {
     run = async (inter: CommandInteraction, opts: any) => {
         if (opts.gm.voice.channel) {
             let con: VoiceConnection
+            const url = inter.options.getString("url") ? inter.options.getString("url") : opts.url
             if (inter.guild?.me?.voice.channel !== opts.gm.voice.channel) {
                 opts.lg.getVoiceConnection?.disconnect()
                 con = joinVoiceChannel({
@@ -20,7 +21,7 @@ class PlayerAdd implements SubCommand {
             } else {
                 con = opts.lg.getVoiceConnection!!
             }
-                const vid = play.video_info(inter.options.getString("url")!!, opts.config.cookie)
+                const vid = play.video_info(url, opts.config.cookie)
                 if (vid) {
                     const name = (await vid).video_details.title
                     const chan = (await vid).video_details.channel.name
