@@ -4,6 +4,7 @@ import { web } from './AuthServer'
 import spotify from 'spotify-web-api-node'
 import {Command, SubCommand} from './Def'
 import { Server } from 'http'
+import open from 'open'
 const config = require("../config.json")
 
 
@@ -41,7 +42,7 @@ export const spotifyApi = new spotify({
     clientSecret: config.spotify.clientSecret,
     redirectUri: "http://localhost:3000/"
 })
-console.log(spotifyApi.createAuthorizeURL([], config.spotify.state))
+open(spotifyApi.createAuthorizeURL([], config.spotify.state))
 
 client.on('interactionCreate', inter => {
     if (!inter.isCommand()) return
