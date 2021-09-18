@@ -4,7 +4,7 @@ import * as play from 'play-dl'
 import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { QueuedMusic } from "../music/QueuedMusic";
-import { parseLength, randomColor } from "../helpers/FuncHelper";
+import { parseLength, randomColor, wrapVideoInfo } from "../helpers/FuncHelper";
 
 class CmdSearch implements SubCommand {
     run = async (inter: CommandInteraction, opts:any) => {
@@ -40,7 +40,7 @@ class CmdSearch implements SubCommand {
                             const name = (await vid).video_details.title
                             const chan = (await vid).video_details.channel.name
                             const len = new Date(Number((await vid).video_details.durationInSec) * 1000).toISOString().substr(11, 8)
-                            const done = opts.player.addQueue(new QueuedMusic(await vid, opts.gm))
+                            const done = opts.player.addQueue(new QueuedMusic(wrapVideoInfo(await vid), opts.gm))
                             if (!done) {
                                 inter.followUp("That song is already in queue!")
                                 return

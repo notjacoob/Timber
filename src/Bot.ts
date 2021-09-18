@@ -1,6 +1,9 @@
 import {Client, CommandInteraction, Intents} from 'discord.js'
 import * as fs from 'fs'
+import { web } from './AuthServer'
+import spotify from 'spotify-web-api-node'
 import {Command, SubCommand} from './Def'
+import { Server } from 'http'
 const config = require("../config.json")
 
 
@@ -10,6 +13,7 @@ export const client = new Client({intents: intents})
 
 export const commands: Map<String, Command> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
+//export const token = Authorization()
 
 fs.readdirSync((__dirname + "/commands/")).filter(cmd => cmd.endsWith(".js")).forEach(cmd => {
     const command = require((__dirname + "/commands/") + cmd)
@@ -20,11 +24,24 @@ fs.readdirSync((__dirname + "/commands/")).filter(cmd => cmd.endsWith(".js")).fo
     }
 })
 
+let server: Server
 
 client.once('ready', () => {
-    console.log("Bot logged in!")
-    client.user?.setStatus("dnd")
+    console.log(`Bot logged in as ${client.user!!.username}#${client.user?.discriminator}`)
+    client.user?.setStatus("dnd");
+    server = web.listen(3000)
 })
+
+export const stopWebServer = async () => {
+    server.close()
+}
+
+export const spotifyApi = new spotify({
+    clientId: config.spotify.clientId,
+    clientSecret: config.spotify.clientSecret,
+    redirectUri: "http://localhost:3000/"
+})
+console.log(spotifyApi.createAuthorizeURL([], config.spotify.state))
 
 client.on('interactionCreate', inter => {
     if (!inter.isCommand()) return
@@ -37,6 +54,9 @@ client.on('interactionCreate', inter => {
         }
     }
 })
-
-client.login(config.token)
+if (process.argv[2]) {
+    client.login(process.argv[2] == "prod" ? config.prod.token : config.dev.token)
+} else {
+    client.login(config.env=="prod" ? config.prod.token : config.dev.token)
+}
 

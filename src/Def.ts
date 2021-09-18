@@ -22,8 +22,23 @@ export enum PlayerError {
 }
 
 export type CurrentPlaying = {
-    track: VideoInfo, index: number, by: GuildMember
+    track: SongInfo, index: number, by: GuildMember
 }
+
+export type SongInfo = {
+    id: any
+    url: string
+    title: string
+    description: string
+    durationInSec: any
+    thumbnail: any
+    channel: {
+        name: string
+        url: string
+    }
+}
+
+
 
 export type VideoInfo = {
     LiveStreamData: {

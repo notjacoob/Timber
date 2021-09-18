@@ -1,11 +1,11 @@
 import { GuildMember } from "discord.js"
 import { Video } from "play-dl/dist/YouTube/classes/Video"
-import { VideoInfo } from "../Def"
+import { SongInfo } from "../Def"
 
 export class QueuedMusic {
-    _song: VideoInfo
+    _song: SongInfo
     _by: GuildMember
-    constructor(song: VideoInfo, by: GuildMember) {
+    constructor(song: SongInfo, by: GuildMember) {
         this._song = song
         this._by = by
     }

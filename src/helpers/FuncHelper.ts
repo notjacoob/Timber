@@ -1,21 +1,23 @@
 import { CommandInteraction } from "discord.js";
+import { SpotifyVideo } from "play-dl/dist/Spotify/classes";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
+import { videoInfo } from "ytdl-core";
 import { subCommands } from "../Bot";
-import { VideoInfo } from "../Def";
+import { SongInfo, VideoInfo } from "../Def";
 
-export const randomColor = (): string => { 
-    return Math.floor(Math.random()*16777215).toString(16); 
+export const randomColor = (): string => {
+    return Math.floor(Math.random() * 16777215).toString(16);
 }
 export const useSubCommand = (name: string, inter: CommandInteraction, opts: any) => {
-    const scmdf = [...subCommands].filter(([k,v]) => k.toLowerCase() == name.toLowerCase())
+    const scmdf = [...subCommands].filter(([k, v]) => k.toLowerCase() == name.toLowerCase())
     if (scmdf.length > 0) {
         scmdf[0][1].run(inter, opts)
     }
 }
-export const parseLength = (title:string|undefined):string=>{
+export const parseLength = (title: string | undefined): string => {
     if (title) {
         if (title.split(' ').length > 2) {
-            return title.split(' ').filter((s, i) => i < 3).join(' ')+'...'
+            return title.split(' ').filter((s, i) => i < 3).join(' ') + '...'
         } else {
             return title
         }
@@ -30,37 +32,48 @@ export const optionsNotNull = (inter: CommandInteraction, options: Array<string>
     })
     return opt
 }
-export const wrapVideo = (v: Video):VideoInfo => {
+export const wrapVideo = (v: Video): SongInfo => {
     return {
-        LiveStreamData: {
-            isLive: false,
-            dashManifestUrl: undefined,
-            hlsManifestUrl: undefined
-        },
-        html5player: "undefined",
-        format: [],
-        video_details: {
-            id: v.id,
-            url: v.url!!,
-            title: v.title,
-            description: v.description,
-            durationInSec: v.durationInSec,
-            durationRaw: v.durationRaw,
-            uploadedDate: undefined,
-            thumbnail: v.thumbnail,
-            channel: {
-                name: v.channel?.name,
-                id: v.channel?.id,
-                url: v.channel?.url!!,
-                verified: v.channel?.verified!!
-            },
-            views: v.views,
-            tags: v.tags,
-            averageRating: undefined,
-            live: v.live,
-            private: v.private
-
+        id: v.id,
+        url: v.url!!,
+        title: v.title!!,
+        description: v.description!!,
+        durationInSec: v.durationInSec,
+        thumbnail: v.thumbnail,
+        channel: {
+            name: v.channel?.name!!,
+            url: v.channel?.url!!,
         }
-
     }
+}
+export const wrapVideoInfo = (v: VideoInfo): SongInfo => {
+    return {
+        id: v.video_details.id,
+        url: v.video_details.url!!,
+        title: v.video_details.title!!,
+        description: v.video_details.description!!,
+        durationInSec: v.video_details.durationInSec,
+        thumbnail: v.video_details.thumbnail,
+        channel: {
+            name: v.video_details.channel.name,
+            url: v.video_details.channel.url,
+        }
+    }
+}
+export const wrapSpotifySong = (v:any): SongInfo => {
+    return {
+        id: v.id,
+        url: v.preview_url,
+        title: v.name,
+        description: "",
+        durationInSec: v.duration_ms,
+        thumbnail: undefined,
+        channel: {
+            name: v.artists.map((a:any) => a.name).join(", "),
+            url: v.artists[0].url,
+        }
+    }
+}
+export const getSpotifyId = (url: string): any => {
+    return url.replace("https://", "").split("/")[2].split("?")[0]
 }

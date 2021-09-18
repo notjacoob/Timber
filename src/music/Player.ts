@@ -34,7 +34,7 @@ export class Player {
                 this._subscription.stop()
                 if (this._queue.length > 0) {
                     this._current = { track: this._queue[0].song, index: 0, by: this._queue[0]._by }
-                    this._subscription.play(createAudioResource((await play.stream(this._current.track.video_details.url, config.cookie)).stream))
+                    this._subscription.play(createAudioResource((await play.stream(this._current.track.url, config.cookie)).stream))
                     this._subscription.once(AudioPlayerStatus.Idle, () => {
                         this.next(vc)
                     })
@@ -51,7 +51,7 @@ export class Player {
         }
     }
     removeQueue = (name: string): boolean => {
-        const found = this._queue.find((qm, i) => qm.song.video_details.title === name)
+        const found = this._queue.find((qm, i) => qm.song.title === name)
         if (found) {
             this._queue = this._queue.filter(qm => qm != found)
             return true
@@ -66,7 +66,7 @@ export class Player {
                     this._playing = true
                     this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy }
                     this._subscription = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Pause } })
-                    const stream = await play.stream(this._queue[0].song.video_details.url, config.cookie)
+                    const stream = await play.stream(this._queue[0].song.url, config.cookie)
                     this._subscription.play(createAudioResource(
                         stream.stream, { inputType: StreamType.Arbitrary }
                     ))
@@ -101,7 +101,7 @@ export class Player {
                 this._playing = true
                 this._current = { track: this._queue[which].song, index: which, by: this._queue[which].queuedBy }
                 this._subscription?.play(createAudioResource(
-                    (await play.stream(this._queue[which].song.video_details.url, config.cookie)).stream
+                    (await play.stream(this._queue[which].song.url, config.cookie)).stream
                 ))
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
                     this.next(vc)
@@ -128,7 +128,7 @@ export class Player {
             if (this._queue[0] || this._looping) {
                 this._playing = true
                 this._subscription?.play(createAudioResource(
-                    (await play.stream(this._current.track.video_details.url, config.cookie)).stream
+                    (await play.stream(this._current.track.url, config.cookie)).stream
                 ))
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
                     this.next(vc)
@@ -144,7 +144,7 @@ export class Player {
                 this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy }
                 this._playing = true
                 this._subscription?.play(createAudioResource(
-                    (await play.stream(this._current.track.video_details.url, config.cookie)).stream
+                    (await play.stream(this._current.track.url, config.cookie)).stream
                 ))
                 return { playing: true, response: "ok" }
             } else {
