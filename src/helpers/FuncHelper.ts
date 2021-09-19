@@ -77,3 +77,10 @@ export const wrapSpotifySong = (v:any): SongInfo => {
 export const getSpotifyId = (url: string): any => {
     return url.replace("https://", "").split("/")[2].split("?")[0]
 }
+
+export const shuffleArray = (array: Array<any>) => {
+    for (let i = array.length- 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [array[i], array[j]] = [array[j], array[i]]
+    }
+}

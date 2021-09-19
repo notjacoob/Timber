@@ -2,7 +2,7 @@ import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageSelectMenu } from "discord.js";
 import { Command } from "../Def";
 import { LinkedGuild } from "../guilds/LinkedGuild";
-import { useSubCommand, optionsNotNull, parseLength, randomColor, wrapVideo, wrapSpotifySong, wrapVideoInfo, getSpotifyId } from "../helpers/FuncHelper";
+import { useSubCommand, optionsNotNull, parseLength, randomColor, wrapVideo, wrapSpotifySong, wrapVideoInfo, getSpotifyId, shuffleArray } from "../helpers/FuncHelper";
 import * as play from 'play-dl'
 import { SpotifyAlbum, SpotifyPlaylist, SpotifyVideo } from "play-dl/dist/Spotify/classes";
 import { QueuedMusic } from "../music/QueuedMusic";
@@ -23,7 +23,8 @@ const args = [
     "current",
     "loop",
     "search",
-    "addspotify"
+    "addspotify",
+    "shuffle"
 ];
 
 export class CmdPlayer implements Command {
@@ -67,6 +68,13 @@ export class CmdPlayer implements Command {
                     useSubCommand("PlayerSearch", inter, { gm: gm, lg: lg, config: config, player: player })
                 } else if (arg1 == "addspotify" && optionsNotNull(inter, ["url"])) {
                     useSubCommand("PlayerAddspotify", inter, {gm:gm,lg:lg,player:player,config:config})
+                } else if (arg1 == "shuffle") {
+                    if (gm.voice.channel && inter.guild?.me?.voice.channel == gm.voice.channel) {
+                        shuffleArray(player._queue)
+                        inter.reply("Shuffled queue!")
+                    } else {
+                        inter.reply({content: "Please join a voice channel!", ephemeral: true})
+                    }
                 }
             }
         })
