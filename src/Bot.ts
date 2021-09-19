@@ -40,6 +40,11 @@ client.once('ready', () => {
 
 export const stopWebServer = async () => {
     server.close()
+    setInterval(() => {
+        spotifyApi.refreshAccessToken().then(tk => {
+            spotifyApi.setAccessToken(tk.body.access_token)
+        })
+    }, (3480000));
 }
 
 export const spotifyApi = new spotify({
