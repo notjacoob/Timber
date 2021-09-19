@@ -8,6 +8,7 @@ const config = require("../../config.json")
 export class Player {
     _playing: boolean = false
     _started: boolean = false
+    q_page: number = 1
     _looping: boolean = false
     _guild: Guild
     _subscription: AudioPlayer | undefined = undefined

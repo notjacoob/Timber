@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { SubCommand } from "../Def";
 import { QueuedMusic } from "../music/QueuedMusic";
 
@@ -9,8 +9,10 @@ class PlayerQueue implements SubCommand {
             if (inter.options.getInteger("page")) {
                 pn = inter.options.getInteger("page")!!
             }
-            const page: Array<QueuedMusic> = opts.player.paginate()[pn-1]
+            const pages = opts.player.paginate()
+            const page: Array<QueuedMusic> = pages[pn-1]
             if (page) {
+                opts.player.q_page = pn
                 const embed = new MessageEmbed()
                     .setAuthor("Timber | page " + pn)
                 let songs = ""
@@ -20,7 +22,20 @@ class PlayerQueue implements SubCommand {
                     index++
                 })
                 embed.setDescription(songs)
-                inter.reply({embeds:[embed]})
+                const row = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId("q_back")
+                        .setLabel("Back")
+                        .setStyle("PRIMARY")
+                        .setDisabled(pn == 1),
+                    new MessageButton()
+                        .setCustomId("q_next")
+                        .setLabel("Next")
+                        .setStyle("PRIMARY")
+                        .setDisabled(pn == pages.length)
+                )
+                inter.reply({embeds:[embed], components: [row]})
             } else {
                 inter.reply({content:"Invalid page!", ephemeral: true})
             }

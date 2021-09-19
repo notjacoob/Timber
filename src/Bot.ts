@@ -2,7 +2,7 @@ import {Client, CommandInteraction, Intents} from 'discord.js'
 import * as fs from 'fs'
 import { web } from './AuthServer'
 import spotify from 'spotify-web-api-node'
-import {Command, SubCommand} from './Def'
+import {Button, Command, SubCommand} from './Def'
 import { Server } from 'http'
 import open from 'open'
 const config = require("../config.json")
@@ -13,6 +13,7 @@ intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAG
 export const client = new Client({intents: intents})
 
 export const commands: Map<String, Command> = new Map()
+export const buttons: Map<String, Button> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
 //export const token = Authorization()
 
@@ -23,6 +24,10 @@ fs.readdirSync((__dirname + "/commands/")).filter(cmd => cmd.endsWith(".js")).fo
     } else {
         commands.set(command.name, command.cmd)
     }
+})
+fs.readdirSync((__dirname + "/buttons/")).filter(b => b.endsWith(".js")).forEach(b => {
+    const button = require((__dirname + "/buttons/") + b)
+    buttons.set(button.id, button.button)
 })
 
 let server: Server
@@ -50,6 +55,17 @@ client.on('interactionCreate', inter => {
     if (cmdf.length > 0) {
         try {
             cmdf[0][1].run(inter)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+})
+client.on("interactionCreate", inter => {
+    if (!inter.isButton()) return
+    const btnf = [...buttons].filter(([k,v]) => k.toLowerCase() == inter.customId.toLowerCase())
+    if (btnf.length > 0) {
+        try {
+            btnf[0][1].run(inter)
         } catch (err) {
             console.error(err)
         }

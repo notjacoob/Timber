@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember } from "discord.js";
+import { ButtonInteraction, CommandInteraction, GuildMember } from "discord.js";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
 
 export interface Command {
@@ -7,6 +7,10 @@ export interface Command {
 
 export interface SubCommand {
     run(inter:CommandInteraction,opts:any): void
+}
+
+export interface Button {
+    run(inter: ButtonInteraction):void
 }
 
 export type PlayerState = {
