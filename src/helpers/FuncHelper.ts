@@ -1,9 +1,10 @@
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { SpotifyVideo } from "play-dl/dist/Spotify/classes";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { videoInfo } from "ytdl-core";
 import { subCommands } from "../Bot";
 import { SongInfo, VideoInfo } from "../Def";
+import { Player } from "../music/Player";
 
 export const randomColor = (): string => {
     return Math.floor(Math.random() * 16777215).toString(16);
@@ -83,4 +84,19 @@ export const shuffleArray = (array: Array<any>) => {
         const j = Math.floor(Math.random() * (i+1));
         [array[i], array[j]] = [array[j], array[i]]
     }
+}
+
+export const renderCurrent = (player: Player): MessageEmbed => {
+    const embed = new MessageEmbed()
+    .setTitle('Now playing!')
+    .addFields(
+        { name: `Title`, value: `${player._current?.track.title}`, inline: false },
+        { name: 'Queued by', value: `${player._current?.by.user.username}`, inline: true },
+        { name: 'Channel', value: parseLength(player._current?.track.channel.name), inline: true },
+        { name: 'Length', value: new Date(Number(player._current?.track.durationInSec) * 1000).toISOString().substr(11, 8), inline: true },
+        { name: `Link`, value: `${player._current?.track.url}`, inline: false }
+    )
+    .setColor(`#${randomColor()}`)
+    .setFooter('Timber');
+    return embed
 }

@@ -31,7 +31,7 @@ export class CmdAddspotify implements SubCommand {
                     const chan = track.artists.map(a => a.name).join(", ")
                     const len = new Date(Number(track.duration_ms)).toISOString().substr(11, 8)
                     const yt = await play.search(`${chan} - ${name}`, {limit:1,type:"video"})
-                    const done = opts.player.addQueue(new QueuedMusic(wrapVideo(yt[0] as Video), opts.gm)) // TODO
+                    const done = opts.player.addQueue(new QueuedMusic(wrapVideo(yt[0] as Video), opts.gm, inter)) // TODO
                     if (!done) {
                         inter.followUp("That song is already in queue!")
                         return
@@ -62,11 +62,11 @@ export class CmdAddspotify implements SubCommand {
                             if (check == "playlist") {
                                 const track = pl.tracks.items[i] as SpotifyApi.PlaylistTrackObject
                                 const vid = await play.search(`${track.track.artists[0].name} - ${track.track.name}`, {limit: 1, type:"video"})
-                                opts.player._queue.push(new QueuedMusic(wrapVideo(vid[0] as Video), opts.gm))
+                                opts.player._queue.push(new QueuedMusic(wrapVideo(vid[0] as Video), opts.gm, inter))
                             } else {
                                 const track = pl.tracks.items[i] as SpotifyApi.TrackObjectSimplified
                                 const vid = await play.search(`${track.artists[0].name} - ${track.name}`, {limit: 1, type:"video"})
-                                opts.player._queue.push(new QueuedMusic(wrapVideo(vid[0] as Video), opts.gm))
+                                opts.player._queue.push(new QueuedMusic(wrapVideo(vid[0] as Video), opts.gm, inter))
                             }
                         }
                     })() // TODO learn to stream directly from spotify instead of mirroring from youtube

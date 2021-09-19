@@ -3,6 +3,7 @@ import { AudioPlayer, VoiceConnection, VoiceConnectionStatus, createAudioResourc
 import { QueuedMusic } from './QueuedMusic'
 import { PlayerState, PlayerError, CurrentPlaying } from '../Def'
 import * as play from 'play-dl'
+import { renderCurrent } from '../helpers/FuncHelper'
 const config = require("../../config.json")
 
 export class Player {
@@ -34,7 +35,7 @@ export class Player {
             if (this._subscription != null) {
                 this._subscription.stop()
                 if (this._queue.length > 0) {
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0]._by }
+                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0] }
                     this._subscription.play(createAudioResource((await play.stream(this._current.track.url, config.cookie)).stream))
                     this._subscription.once(AudioPlayerStatus.Idle, () => {
                         this.next(vc)
@@ -65,7 +66,7 @@ export class Player {
             if (!this._playing && this._queue.length > 0) {
                 try {
                     this._playing = true
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy }
+                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0] }
                     this._subscription = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Pause } })
                     const stream = await play.stream(this._queue[0].song.url, config.cookie)
                     this._subscription.play(createAudioResource(
@@ -100,7 +101,7 @@ export class Player {
         if (!this._playing) {
             if (this._queue[which] != undefined) {
                 this._playing = true
-                this._current = { track: this._queue[which].song, index: which, by: this._queue[which].queuedBy }
+                this._current = { track: this._queue[which].song, index: which, by: this._queue[which].queuedBy, qmusic: this._queue[which] }
                 this._subscription?.play(createAudioResource(
                     (await play.stream(this._queue[which].song.url, config.cookie)).stream
                 ))
@@ -123,7 +124,7 @@ export class Player {
             if (!this._looping) {
                 this._queue = this._queue.filter((s, i) => i !== this._current?.index)
                 if (this._queue[0]) {
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy }
+                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0] }
                 }
             }
             if (this._queue[0] || this._looping) {
@@ -131,6 +132,8 @@ export class Player {
                 this._subscription?.play(createAudioResource(
                     (await play.stream(this._current.track.url, config.cookie)).stream
                 ))
+                const interaction = this._current.qmusic.qm
+                interaction.followUp({embeds: [renderCurrent(this)]})
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
                     this.next(vc)
                 })
@@ -142,7 +145,7 @@ export class Player {
             }
         } else {
             if (this._queue.length > 0) {
-                this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy }
+                this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0] }
                 this._playing = true
                 this._subscription?.play(createAudioResource(
                     (await play.stream(this._current.track.url, config.cookie)).stream

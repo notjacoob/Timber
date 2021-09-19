@@ -1,5 +1,6 @@
 import { ButtonInteraction, CommandInteraction, GuildMember } from "discord.js";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
+import { QueuedMusic } from "./music/QueuedMusic";
 
 export interface Command {
     run(inter: CommandInteraction): void
@@ -26,7 +27,7 @@ export enum PlayerError {
 }
 
 export type CurrentPlaying = {
-    track: SongInfo, index: number, by: GuildMember
+    track: SongInfo, index: number, by: GuildMember, qmusic: QueuedMusic
 }
 
 export type SongInfo = {

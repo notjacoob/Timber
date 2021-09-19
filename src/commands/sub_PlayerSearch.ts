@@ -40,7 +40,7 @@ class CmdSearch implements SubCommand {
                             const name = (await vid).video_details.title
                             const chan = (await vid).video_details.channel.name
                             const len = new Date(Number((await vid).video_details.durationInSec) * 1000).toISOString().substr(11, 8)
-                            const done = opts.player.addQueue(new QueuedMusic(wrapVideoInfo(await vid), opts.gm))
+                            const done = opts.player.addQueue(new QueuedMusic(wrapVideoInfo(await vid), opts.gm, inter))
                             if (!done) {
                                 inter.followUp("That song is already in queue!")
                                 return
