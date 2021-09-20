@@ -27,7 +27,7 @@ export enum PlayerError {
 }
 
 export type CurrentPlaying = {
-    track: SongInfo, index: number, by: GuildMember, qmusic: QueuedMusic
+    track: SongInfo, index: number, by: GuildMember, qmusic: QueuedMusic, startTime: Date
 }
 
 export type SongInfo = {
@@ -41,6 +41,7 @@ export type SongInfo = {
         name: string
         url: string
     }
+    thumbUrl: string | undefined
 }
 
 

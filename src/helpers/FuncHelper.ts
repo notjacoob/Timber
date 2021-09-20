@@ -1,6 +1,7 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { SpotifyVideo } from "play-dl/dist/Spotify/classes";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
+import { start } from "repl";
 import { videoInfo } from "ytdl-core";
 import { subCommands } from "../Bot";
 import { SongInfo, VideoInfo } from "../Def";
@@ -44,7 +45,8 @@ export const wrapVideo = (v: Video): SongInfo => {
         channel: {
             name: v.channel?.name!!,
             url: v.channel?.url!!,
-        }
+        },
+        thumbUrl: v.thumbnail?.url
     }
 }
 export const wrapVideoInfo = (v: VideoInfo): SongInfo => {
@@ -58,7 +60,8 @@ export const wrapVideoInfo = (v: VideoInfo): SongInfo => {
         channel: {
             name: v.video_details.channel.name,
             url: v.video_details.channel.url,
-        }
+        },
+        thumbUrl: v.video_details.thumbnail.url
     }
 }
 export const wrapSpotifySong = (v:any): SongInfo => {
@@ -72,7 +75,8 @@ export const wrapSpotifySong = (v:any): SongInfo => {
         channel: {
             name: v.artists.map((a:any) => a.name).join(", "),
             url: v.artists[0].url,
-        }
+        },
+        thumbUrl: undefined
     }
 }
 export const getSpotifyId = (url: string): any => {
@@ -87,16 +91,47 @@ export const shuffleArray = (array: Array<any>) => {
 }
 
 export const renderCurrent = (player: Player): MessageEmbed => {
+    const startTime = player._current?.startTime
+    const endTime = new Date()
+    endTime.setSeconds(endTime.getSeconds() + Number(player._current?.track.durationInSec))
+    const ap = new Date(((new Date().getTime()/1000)-(startTime!!.getTime()/1000))*1000).toISOString().substr(14,5)
+    const t = `[${parseLength(player._current?.track.channel.name)} - ${player._current?.track.title}](${player._current?.track.url})\n\n`
+        + `${progressBar(secDifference(endTime,startTime!!), player._current?.track.durationInSec, 20)}\n\n`
+        + `\`${ap} / ${new Date(Number(player._current?.track.durationInSec) * 1000).toISOString().substr(14, 5)}\`\n\n`
+        + `\`Queued by:\` ${player._current?.by.user.username}`
     const embed = new MessageEmbed()
     .setTitle('Now playing!')
-    .addFields(
-        { name: `Title`, value: `${player._current?.track.title}`, inline: false },
-        { name: 'Queued by', value: `${player._current?.by.user.username}`, inline: true },
-        { name: 'Channel', value: parseLength(player._current?.track.channel.name), inline: true },
-        { name: 'Length', value: new Date(Number(player._current?.track.durationInSec) * 1000).toISOString().substr(11, 8), inline: true },
-        { name: `Link`, value: `${player._current?.track.url}`, inline: false }
-    )
+    .setDescription(t)
     .setColor(`#${randomColor()}`)
     .setFooter('Timber');
+    if (player._current?.track.thumbUrl) {
+        embed.setThumbnail(player._current.track.thumbUrl)
+    }
     return embed
+}
+
+// https://github.com/Mw3y/Text-ProgressBar/blob/master/ProgressBar.js modified a bit
+export const progressBar = (value: number, maxValue: number, size: number): string => {
+    const percent = (value/maxValue)-1
+    const prog = Math.round(size*percent)
+    const emptyProg = size - prog
+    
+    const progText = '▇'.repeat(clamp(prog, 0, 20))
+    const eProgText = '—'.repeat(clamp(emptyProg, 0, 20))
+
+    const bar = '`['+progText+eProgText+']`'
+    return bar
+}
+
+export const secDifference = (d1: Date, d2: Date): number => {
+    const dif = d1.getTime() - d2.getTime()
+    const sBetween1 = dif/1000
+    const sBetween2 = Math.abs(sBetween1)
+    return sBetween2
+}
+
+export const clamp = (n1: number, min: number, max: number): number => {
+    if (n1 > max) return max
+    else if (n1 < min) return min
+    else return n1
 }
