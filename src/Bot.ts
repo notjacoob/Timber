@@ -5,6 +5,7 @@ import spotify from 'spotify-web-api-node'
 import {Button, Command, SubCommand} from './Def'
 import { Server } from 'http'
 import open from 'open'
+import { LinkedGuild } from './guilds/LinkedGuild'
 const config = require("../config.json")
 
 
@@ -74,6 +75,20 @@ client.on("interactionCreate", inter => {
         } catch (err) {
             console.error(err)
         }
+    }
+})
+client.on("voiceStateUpdate", (olds, news) => {
+    if (olds.channel) {
+        if (olds.channel.members.filter((m)=>m.id != client.user!!.id).size == 0) {
+            LinkedGuild.getBy(news.guild).then(g => {
+                setTimeout(() => {
+                    if (olds.channel!!.members.filter((m)=>m.id != client.user!!.id).size == 0) {
+                        if (g.player) g.player._queue = []
+                        g._voiceConnection?.disconnect()
+                    }
+                },300000)
+            })
+        } 
     }
 })
 if (process.argv[2]) {
