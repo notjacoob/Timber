@@ -22,7 +22,7 @@ export class LinkedGuild {
     //getLogger(which:string)
     createPlayer = ():Player => {
         if (!this.player) {
-            this.player=new Player(this._guild)
+            this.player=new Player(this)
             return this.player
         } else {
             return this.player
