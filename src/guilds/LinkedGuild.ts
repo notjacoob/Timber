@@ -57,6 +57,5 @@ export class LinkedGuild {
                     reject(new Error("Invalid guild"))
                 }
             })
-        
     }
 }

@@ -91,9 +91,31 @@ client.on("voiceStateUpdate", (olds, news) => {
         } 
     }
 })
+if (process.platform == "win32") {
+    const rl = require("readline").createInterface({
+        input: process.stdin,
+        output: process.stdout
+    })
+    rl.on("SIGINT", () => {
+        console.log("Shutting down!")
+        __sd()
+        process.exit(0)
+    })
+}
 if (process.argv[2]) {
     client.login(process.argv[2] == "prod" ? config.prod.token : config.dev.token)
 } else {
     client.login(config.env=="prod" ? config.prod.token : config.dev.token)
 }
+process.on("exit", () => {
+    __sd()
+})
+process.on("SIGINT", () => {
+    __sd()
+})
 
+const __sd = () => {
+    LinkedGuild._cache.forEach(lg => {
+        lg._voiceConnection?.disconnect()
+    })
+}
