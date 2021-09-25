@@ -75,7 +75,6 @@ export class CmdPlayer implements Command {
                     if (player._current) {
                         getLyrics(player).then(l => {
                             const embed = new MessageEmbed()
-                            console.log(l)
                             embed.setAuthor("Lyrics")
                                 .setDescription(`${l}\n\n\n\`Song:\` [${player._current!!.track.channel.name} - ${player._current!!.track.title}](${player._current!!.track.url})`)
                                 .setFooter("Timber")
