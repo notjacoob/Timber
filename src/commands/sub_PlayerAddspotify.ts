@@ -6,6 +6,7 @@ import { spotifyApi } from "../Bot";
 import { getSpotifyId, parseLength, randomColor, wrapVideo } from "../helpers/FuncHelper";
 import { QueuedMusic } from "../music/QueuedMusic";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
+import { SPOTIFY_COLOR, SPOTIFY_IMAGE, SPOTIFY_LOGO } from "../helpers/EmojiHelper";
 
 export class CmdAddspotify implements SubCommand {
     run = async (inter: CommandInteraction, opts:any) => {
@@ -28,7 +29,7 @@ export class CmdAddspotify implements SubCommand {
                 const track = (await spotifyApi.getTrack(getSpotifyId(url))).body
                 if (track) {
                     const name = track.name
-                    const chan = track.artists.map(a => a.name).join(", ")
+                    const chan = track.artists[0].name
                     const len = new Date(Number(track.duration_ms)).toISOString().substr(11, 8)
                     const yt = await play.search(`${chan} - ${name}`, {limit:1,type:"video"})
                     const done = opts.player.addQueue(new QueuedMusic(wrapVideo(yt[0] as Video), opts.gm, inter)) // TODO
@@ -37,16 +38,16 @@ export class CmdAddspotify implements SubCommand {
                         return
                     }
                     const embed = new MessageEmbed()
-                        .setTitle("Song queued!")
-                        .addFields(
-                            { name: "Name", value: name, inline: false },
-                            { name: "Channel", value: parseLength(chan), inline: true },
-                            { name: "Queued by", value: opts.gm.user.username, inline: true },
-                            { name: "Length", value: len, inline: true }
-                        )
-                        .addField("Link", `https://open.spotify.com/track/${track.id}`, false)
-                        .setColor(`#${randomColor()}`)
-                        .setFooter("Timber | mirrored from youtube")
+                    .setAuthor(`Song queued!`, SPOTIFY_IMAGE)
+                    .setTitle(`${name}`)
+                    .setURL("https://open.spotify.com/track/"+track.id)
+                    .addFields(
+                        { name: "Artist", value: parseLength(track.artists.map(a => a.name).join(", ")), inline: true },
+                        { name: "Queued by", value: opts.gm.user.username, inline: true },
+                        { name: "Length", value: len, inline: true }
+                    )
+                    .setColor(`#${SPOTIFY_COLOR}`)
+                    .setFooter("Timber")
                     inter.reply({ embeds: [embed] })
                     if (!opts.player._playing) {
                         opts.player.start(con)
@@ -72,7 +73,7 @@ export class CmdAddspotify implements SubCommand {
                     })() // TODO learn to stream directly from spotify instead of mirroring from youtube
 
                     const embed = new MessageEmbed()
-                        .setTitle(`${check.charAt(0).toUpperCase() + check.slice(1)} queued!`)
+                        .setTitle(`${SPOTIFY_LOGO}  ${check.charAt(0).toUpperCase() + check.slice(1)} queued!`)
                         .addFields(
                             { name: "Name", value: parseLength(pl.name), inline: true },
                             { name: "Queued by", value: opts.gm.user.username, inline: true },

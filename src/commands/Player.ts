@@ -1,13 +1,8 @@
-import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
-import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageSelectMenu } from "discord.js";
+import { CommandInteraction, GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "../Def";
 import { LinkedGuild } from "../guilds/LinkedGuild";
-import { useSubCommand, optionsNotNull, parseLength, randomColor, wrapVideo, wrapSpotifySong, wrapVideoInfo, getSpotifyId, shuffleArray } from "../helpers/FuncHelper";
-import * as play from 'play-dl'
-import { SpotifyAlbum, SpotifyPlaylist, SpotifyVideo } from "play-dl/dist/Spotify/classes";
-import { QueuedMusic } from "../music/QueuedMusic";
-import { spotifyApi } from "../Bot";
-import { Video } from "play-dl/dist/YouTube/classes/Video";
+import { useSubCommand, optionsNotNull, shuffleArray } from "../helpers/FuncHelper";
+import { getLyrics } from "../helpers/FuncHelper";
 const config = require('../../config.json')
 
 const args = [
@@ -24,7 +19,8 @@ const args = [
     "loop",
     "search",
     "addspotify",
-    "shuffle"
+    "shuffle",
+    "lyrics"
 ];
 
 export class CmdPlayer implements Command {
@@ -74,6 +70,19 @@ export class CmdPlayer implements Command {
                         inter.reply("Shuffled queue!")
                     } else {
                         inter.reply({content: "Please join a voice channel!", ephemeral: true})
+                    }
+                } else if (arg1 == "lyrics") {
+                    if (player._current) {
+                        getLyrics(player).then(l => {
+                            const embed = new MessageEmbed()
+                            console.log(l)
+                            embed.setAuthor("Lyrics")
+                                .setDescription(`${l}\n\n\n\`Song:\` [${player._current!!.track.channel.name} - ${player._current!!.track.title}](${player._current!!.track.url})`)
+                                .setFooter("Timber")
+                            inter.reply({embeds:[embed]})
+                        }).catch(err => {
+                            inter.reply({content: "Cannot find lyrics for that song!", ephemeral: true})
+                        })
                     }
                 }
             }

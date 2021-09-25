@@ -1,9 +1,10 @@
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { parseLength, randomColor, wrapSpotifySong, wrapVideo, wrapVideoInfo } from "../helpers/FuncHelper";
+import { parseLength, randomColor, wrapVideo, wrapVideoInfo } from "../helpers/FuncHelper";
 import { SubCommand } from "../Def";
 import { QueuedMusic } from "../music/QueuedMusic";
 import * as play from 'play-dl'
+import { YT_COLOR, YT_IMAGE, YT_LOGO } from "../helpers/EmojiHelper";
 
 class PlayerAdd implements SubCommand {
     run = async (inter: CommandInteraction, opts: any) => {
@@ -34,16 +35,16 @@ class PlayerAdd implements SubCommand {
                         return
                     }
                     const embed = new MessageEmbed()
-                        .setTitle("Song queued!")
+                        .setAuthor(`Song queued!`, YT_IMAGE)
+                        .setTitle(`${name}`)
+                        .setURL(((await vid).video_details.url))
                         .addFields(
-                            { name: "Name", value: name, inline: false },
                             { name: "Channel", value: parseLength(chan), inline: true },
                             { name: "Queued by", value: opts.gm.user.username, inline: true },
                             { name: "Length", value: len, inline: true }
                         )
-                        .addField("Link", (await vid).video_details.url, false)
                         .setThumbnail((await vid).video_details.thumbnail.url)
-                        .setColor(`#${randomColor()}`)
+                        .setColor(`#${YT_COLOR}`)
                         .setFooter("Timber")
                     inter.reply({ embeds: [embed] })
                     if (!opts.player._playing) {
@@ -64,7 +65,7 @@ class PlayerAdd implements SubCommand {
                     }
                     opts.player._queue = opts.player._queue.concat(subQueue)
                     const embed = new MessageEmbed()
-                        .setTitle(`Playlist queued!`)
+                        .setTitle(`${YT_LOGO}  Playlist queued!`)
                         .addFields(
                             { name: "Name", value: parseLength((await pl).title!!), inline: true },
                             { name: "Channel", value: parseLength((await pl).channel!!.name), inline: true },

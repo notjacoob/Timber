@@ -16,7 +16,6 @@ export const client = new Client({intents: intents})
 export const commands: Map<String, Command> = new Map()
 export const buttons: Map<String, Button> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
-//export const token = Authorization()
 
 fs.readdirSync((__dirname + "/commands/")).filter(cmd => cmd.endsWith(".js")).forEach(cmd => {
     const command = require((__dirname + "/commands/") + cmd)
@@ -53,6 +52,7 @@ export const spotifyApi = new spotify({
     clientSecret: config.spotify.clientSecret,
     redirectUri: "http://localhost:3000/"
 })
+
 open(spotifyApi.createAuthorizeURL([], config.spotify.state))
 
 client.on('interactionCreate', inter => {

@@ -1,5 +1,4 @@
 import { ButtonInteraction, CommandInteraction, GuildMember } from "discord.js";
-import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { QueuedMusic } from "./music/QueuedMusic";
 
 export interface Command {
@@ -76,4 +75,3 @@ export type VideoInfo = {
         private: any;
     };
 }
-

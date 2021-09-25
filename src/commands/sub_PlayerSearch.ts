@@ -5,6 +5,7 @@ import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { QueuedMusic } from "../music/QueuedMusic";
 import { parseLength, randomColor, wrapVideoInfo } from "../helpers/FuncHelper";
+import { YT_COLOR, YT_IMAGE, YT_LOGO } from "../helpers/EmojiHelper";
 
 class CmdSearch implements SubCommand {
     run = async (inter: CommandInteraction, opts:any) => {
@@ -46,17 +47,17 @@ class CmdSearch implements SubCommand {
                                 return
                             }
                             const embed = new MessageEmbed()
-                                .setTitle("Song queued!")
-                                .addFields(
-                                    { name: "Name", value: name, inline: false },
-                                    { name: "Channel", value: parseLength(chan), inline: true },
-                                    { name: "Queued by", value: opts.gm.user.username, inline: true },
-                                    { name: "Length", value: len, inline: true }
-                                )
-                                .addField("Link", (await vid).video_details.url, false)
-                                .setThumbnail((await vid).video_details.thumbnail.url)
-                                .setColor(`#${randomColor()}`)
-                                .setFooter("Timber")
+                            .setAuthor(`Song queued!`, YT_IMAGE)
+                            .setTitle(`${name}`)
+                            .setURL(((await vid).video_details.url))
+                            .addFields(
+                                { name: "Channel", value: parseLength(chan), inline: true },
+                                { name: "Queued by", value: opts.gm.user.username, inline: true },
+                                { name: "Length", value: len, inline: true }
+                            )
+                            .setThumbnail((await vid).video_details.thumbnail.url)
+                            .setColor(`#${YT_COLOR}`)
+                            .setFooter("Timber")
                             inter.editReply({ embeds: [embed] })
                             if (!opts.player._playing) {
                                 opts.player.start(con)

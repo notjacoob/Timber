@@ -1,0 +1,6 @@
+export const YT_LOGO: string = "<:yt:890655083350609990>"
+export const SPOTIFY_LOGO: string = "<:spotify:890655155308068914>"
+export const SPOTIFY_IMAGE: string = "https://cdn.discordapp.com/emojis/890655155308068914.png"
+export const YT_IMAGE: string = "https://cdn.discordapp.com/emojis/890655083350609990.png"
+export const SPOTIFY_COLOR: string = "1db954"
+export const YT_COLOR: string = "FF0000"

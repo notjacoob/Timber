@@ -1,6 +1,5 @@
 import express from 'express'
 import { spotifyApi, stopWebServer } from './Bot'
-import url from 'url'
 const config = require("../config.json")
 
 export const web = express()
@@ -11,7 +10,7 @@ web.get("/", (req, res) => {
         spotifyApi.setRefreshToken(data.body['refresh_token'])
         spotifyApi.setClientId(config.spotify.clientId)
         spotifyApi.setClientSecret(config.spotify.clientSecret)
-        res.send("<p>200 ok</p")
+        res.send("<p>200 ok</p>")
         setTimeout(() => {
             stopWebServer()
         }, 2000)

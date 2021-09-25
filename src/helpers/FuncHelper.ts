@@ -1,3 +1,4 @@
+import axios from "axios";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { SpotifyVideo } from "play-dl/dist/Spotify/classes";
 import { Video } from "play-dl/dist/YouTube/classes/Video";
@@ -134,4 +135,15 @@ export const clamp = (n1: number, min: number, max: number): number => {
     if (n1 > max) return max
     else if (n1 < min) return min
     else return n1
+}
+export const getLyrics = (player: Player): Promise<string> => {
+    return new Promise(async (res, rej) => {
+        axios.get(`https://api.lyrics.ovh/v1/${player._current?.track.channel.name}/${player._current?.track.title}`).then(t => {
+            if (t.data.error) {
+                rej()
+            } else {
+                res(t.data.lyrics)
+            }
+        })
+    })
 }
