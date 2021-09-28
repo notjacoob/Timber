@@ -2,14 +2,18 @@ import { ButtonInteraction, CommandInteraction, GuildMember } from "discord.js";
 import Knex from "knex";
 import { QueuedMusic } from "./music/QueuedMusic";
 import { Model } from 'objection'
-import { session } from "./Bot";
+import { env, session } from "./Bot";
 const knex = require('knex')
+const config = require("../config.json")
 
 export const knexc: Knex = knex({
-    client: 'sqlite3',
+    client: 'postgres',
     useNullAsDefault: true,
     connection: {
-        filename: "./bot.db"
+        host: '127.0.0.1',
+        user: 'postgres',
+        password: config.pg_pw,
+        database: `${env == "prod" ? "postgres" : "postgres-dev"}`
     }
 })
 

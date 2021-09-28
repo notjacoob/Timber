@@ -23,6 +23,7 @@
     "node": "^16.6.1",
     "objection": "^2.2.16",
     "open": "^8.2.1",
+    "pg": "^8.7.1",
     "play-dl": "^0.9.9",
     "spotify-web-api-node": "^5.0.2",
     "sqlite3": "^5.0.2",

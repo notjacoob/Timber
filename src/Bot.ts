@@ -7,6 +7,7 @@ import { Server } from 'http'
 import open from 'open'
 import { LinkedGuild } from './guilds/LinkedGuild'
 import { Model } from "objection"
+import e from 'express'
 const config = require("../config.json")
 
 
@@ -14,6 +15,7 @@ const intents = new Intents()
 intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGES)
 export const client = new Client({intents: intents})
 export const session: number = Math.floor(Math.random() * 1000000000)
+export let env: "prod" | "dev" = "dev"
 export const commands: Map<String, Command> = new Map()
 export const buttons: Map<String, Button> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
@@ -111,9 +113,16 @@ if (process.platform == "win32") {
     })
 }
 if (process.argv[2]) {
-    client.login(process.argv[2] == "prod" ? config.prod.token : config.dev.token)
+    if (process.argv[2] == "prod") {
+        client.login(config.prod.token)
+        env = "prod"
+    } else {
+        client.login(config.dev.token)
+        env = "dev"
+    }
 } else {
     client.login(config.env=="prod" ? config.prod.token : config.dev.token)
+    env = config.env
 }
 process.on("exit", () => {
     __sd()
@@ -127,13 +136,13 @@ const createSchema = async () => {
     if (await knexc.schema.hasTable('CommandDiagnostics')) return
     await knexc.schema.createTable('CommandDiagnostics', t => {
         t.increments('id').primary()
-        t.integer('startTimeMs')
-        t.integer('endTimeMs')
+        t.bigInteger('startTimeMs')
+        t.bigInteger('endTimeMs')
         t.string('name')
         t.string('msg')
-        t.integer('authorId')
-        t.integer('gid')
-        t.integer('session')
+        t.bigInteger('authorId')
+        t.bigInteger('gid')
+        t.bigInteger('session')
     })
 }
 
