@@ -58,8 +58,8 @@ export class CmdPlayer implements Command {
                 } else if (arg1 == "current") {
                     useSubCommand("PlayerCurrent", inter, { player: player })
                 } else if (arg1 == "loop") {
-                    player._looping = true
-                    inter.reply("Looping!")
+                    player._looping = !player._looping
+                    inter.reply((!player._looping ? "No longer looping!" : "Looping!"))
                 } else if (arg1 == "search" && optionsNotNull(inter, ["searchterm"])) {
                     useSubCommand("PlayerSearch", inter, { gm: gm, lg: lg, config: config, player: player })
                 } else if (arg1 == "addspotify" && optionsNotNull(inter, ["url"])) {

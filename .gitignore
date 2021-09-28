@@ -5,3 +5,4 @@ src/DeployCommands.js
 package-lock.json
 .data
 todo
+bot.db

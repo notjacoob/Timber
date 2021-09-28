@@ -2,17 +2,18 @@ import {Client, CommandInteraction, Intents} from 'discord.js'
 import * as fs from 'fs'
 import { web } from './AuthServer'
 import spotify from 'spotify-web-api-node'
-import {Button, Command, SubCommand} from './Def'
+import {Button, Command, SubCommand, knexc, CommandStatistics} from './Def'
 import { Server } from 'http'
 import open from 'open'
 import { LinkedGuild } from './guilds/LinkedGuild'
+import { Model } from "objection"
 const config = require("../config.json")
 
 
 const intents = new Intents()
 intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGES)
 export const client = new Client({intents: intents})
-
+export const session: number = Math.floor(Math.random() * 1000000000)
 export const commands: Map<String, Command> = new Map()
 export const buttons: Map<String, Button> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
@@ -35,7 +36,10 @@ let server: Server
 client.once('ready', () => {
     console.log(`Bot logged in as ${client.user!!.username}#${client.user?.discriminator}`)
     client.user?.setStatus("dnd");
-    server = web.listen(3000)
+    Model.knex(knexc)
+    createSchema().then(() => {
+        server = web.listen(3000)
+    })
 })
 
 export const stopWebServer = async () => {
@@ -57,14 +61,18 @@ open(spotifyApi.createAuthorizeURL([], config.spotify.state))
 
 client.on('interactionCreate', inter => {
     if (!inter.isCommand()) return
-    const cmdf = [...commands].filter(([k, v]) => k.toLowerCase() == inter.commandName.toLowerCase())
-    if (cmdf.length > 0) {
-        try {
-            cmdf[0][1].run(inter)
-        } catch (err) {
-            console.error(err)
+    CommandStatistics.wrap(inter, () => {
+        const cmdf = [...commands].filter(([k, v]) => k.toLowerCase() == inter.commandName.toLowerCase())
+        if (cmdf.length > 0) {
+            try {
+                cmdf[0][1].run(inter)
+            } catch (err) {
+                console.error(err)
+            }
         }
-    }
+        return new Date()
+    })
+
 })
 client.on("interactionCreate", inter => {
     if (!inter.isButton()) return
@@ -113,6 +121,21 @@ process.on("exit", () => {
 process.on("SIGINT", () => {
     __sd()
 })
+
+const createSchema = async () => {
+    //console.log(await knexc.schema.hasTable('CommandDiagnostics'))
+    if (await knexc.schema.hasTable('CommandDiagnostics')) return
+    await knexc.schema.createTable('CommandDiagnostics', t => {
+        t.increments('id').primary()
+        t.integer('startTimeMs')
+        t.integer('endTimeMs')
+        t.string('name')
+        t.string('msg')
+        t.integer('authorId')
+        t.integer('gid')
+        t.integer('session')
+    })
+}
 
 const __sd = () => {
     LinkedGuild._cache.forEach(lg => {
