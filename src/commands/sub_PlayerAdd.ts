@@ -1,7 +1,7 @@
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { parseLength, randomColor, wrapVideo, wrapVideoInfo } from "../helpers/FuncHelper";
-import { SubCommand } from "../Def";
+import { SessionChangeWrapper, SubCommand } from "../Def";
 import { QueuedMusic } from "../music/QueuedMusic";
 import * as play from 'play-dl'
 import { YT_COLOR, YT_IMAGE, YT_LOGO } from "../helpers/EmojiHelper";
@@ -13,6 +13,8 @@ class PlayerAdd implements SubCommand {
             const url = inter.options.getString("url") ? inter.options.getString("url") : opts.url
             if (inter.guild?.me?.voice.channel !== opts.gm.voice.channel) {
                 opts.lg.getVoiceConnection?.disconnect()
+                //console.log(`Joined ${opts.gm.voice.channel.name} (${opts.gm.voice.channel.id}) [${inter.guild!!.name} ${inter.guild!!.id}]`)
+                SessionChangeWrapper.wrap(opts.gm.guild!!.id, opts.gm.voice.channel.id, opts.gm.voice.channel.name, opts.gm.guild!!.name, opts.gm.user)
                 con = joinVoiceChannel({
                     channelId: opts.gm.voice.channel.id,
                     guildId: inter.guild!!.id,

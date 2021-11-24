@@ -7,7 +7,6 @@ import { Server } from 'http'
 import open from 'open'
 import { LinkedGuild } from './guilds/LinkedGuild'
 import { Model } from "objection"
-import e from 'express'
 const config = require("../config.json")
 
 
@@ -15,7 +14,7 @@ const intents = new Intents()
 intents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MESSAGES)
 export const client = new Client({intents: intents})
 export const session: number = Math.floor(Math.random() * 1000000000)
-export let env: "prod" | "dev" = "dev"
+export let env: "prod" | "dev" = "prod"
 export const commands: Map<String, Command> = new Map()
 export const buttons: Map<String, Button> = new Map()
 export const subCommands: Map<String, SubCommand> = new Map()
@@ -92,9 +91,11 @@ client.on("voiceStateUpdate", (olds, news) => {
         if (olds.channel.members.filter((m)=>m.id != client.user!!.id).size == 0) {
             LinkedGuild.getBy(news.guild).then(g => {
                 setTimeout(() => {
-                    if (olds.channel!!.members.filter((m)=>m.id != client.user!!.id).size == 0) {
-                        if (g.player) g.player._queue = []
-                        g._voiceConnection?.disconnect()
+                    if (olds.guild.me?.voice.channel) {
+                        if (olds.guild.me.voice.channel.members.filter((m)=>m.id != client.user!!.id).size == 0) {
+                            if (g.player) g.player._queue = []
+                            g._voiceConnection?.disconnect()
+                        }
                     }
                 },300000)
             })
@@ -132,9 +133,7 @@ process.on("SIGINT", () => {
 })
 
 const createSchema = async () => {
-    //console.log(await knexc.schema.hasTable('CommandDiagnostics'))
-    if (await knexc.schema.hasTable('CommandDiagnostics')) return
-    await knexc.schema.createTable('CommandDiagnostics', t => {
+    await knexc.schema.createTableIfNotExists('CommandDiagnostics', t => {
         t.increments('id').primary()
         t.bigInteger('startTimeMs')
         t.bigInteger('endTimeMs')
@@ -143,8 +142,17 @@ const createSchema = async () => {
         t.bigInteger('authorId')
         t.bigInteger('gid')
         t.bigInteger('session')
+    }).createTableIfNotExists("SessionChanges", t => {
+        t.increments('id').primary()
+        t.bigInteger('serverId')
+        t.text('serverName')
+        t.bigInteger('vcId')
+        t.text('vcName')
+        t.bigInteger('userId')
+        t.text('userName')
     })
 }
+
 
 const __sd = () => {
     LinkedGuild._cache.forEach(lg => {

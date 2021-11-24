@@ -1,7 +1,7 @@
-import { embedFieldPredicate } from "@discordjs/builders/dist/messages/embed/Assertions";
 import { ButtonInteraction, Message, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { client, session } from "../Bot";
-import { Button, CommandDiagnostic, avg } from "../Def";
+import { Button, CommandDiagnostic } from "../Def";
+import { avg } from "../helpers/FuncHelper"
 const config = require("../../config.json")
 
 class ButtonHello implements Button {
@@ -18,7 +18,7 @@ class ButtonHello implements Button {
                     .addField("Command count", `${cc.length}`)
                     .addField("Command count (session)", `${ccs.length}`)
 
-                if (inter.guild!!.id == "689669354698440713" || inter.guild?.id == "693290026292740116") {
+                if ((config.adminGuilds as Array<string>).includes(inter.guild!!.id)) {
                     embed.addField(config.phrase_s, config.phrase_e)
                 }
                 const s = await m.edit({

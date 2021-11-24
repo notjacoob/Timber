@@ -3,7 +3,7 @@ import { AudioPlayer, VoiceConnection, VoiceConnectionStatus, createAudioResourc
 import { QueuedMusic } from './QueuedMusic'
 import { PlayerState, PlayerError, CurrentPlaying } from '../Def'
 import * as play from 'play-dl'
-import { renderCurrent } from '../helpers/FuncHelper'
+import { cloneDeep, renderCurrent } from '../helpers/FuncHelper'
 import { LinkedGuild } from '../guilds/LinkedGuild'
 const config = require("../../config.json")
 
@@ -11,8 +11,10 @@ export class Player {
     _playing: boolean = false
     _started: boolean = false
     q_page: number = 1
+    _q_looping: boolean = false
     _looping: boolean = false
     _guild: LinkedGuild
+    _q_store: Array<QueuedMusic> = new Array()
     _idle: boolean = true
     _subscription: AudioPlayer | undefined = undefined
     _queue: Array<QueuedMusic> = new Array()
@@ -28,6 +30,7 @@ export class Player {
             return false
         } else {
             this._queue.push(music)
+            if (this._q_looping) this._q_store.push(music)
             return true
         }
     }
@@ -37,11 +40,15 @@ export class Player {
             if (this._subscription != null) {
                 this._subscription.stop()
                 if (this._queue.length > 0) {
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
+                    this._current = { track: this._queue[0]._song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
                     this._subscription.play(createAudioResource((await play.stream(this._current.track.url, config.cookie)).stream))
                     this._idle = false
                     this._subscription.once(AudioPlayerStatus.Idle, () => {
-                        this.next(vc)
+                        if (this.__lq_check()) {
+                            this.start(vc)
+                        } else {
+                            this.next(vc)
+                        }
                     })
                     return { playing: true, response: "ok" }
                 } else {
@@ -57,29 +64,50 @@ export class Player {
         }
     }
     removeQueue = (name: string): boolean => {
-        const found = this._queue.find((qm, i) => qm.song.title === name)
+        const found = this._queue.find((qm, i) => qm._song.title === name)
         if (found) {
-            this._queue = this._queue.filter(qm => qm != found)
+            const q = this._queue.filter(qm => qm != found)
+            this._queue = q
+            if (this._q_looping) {
+                this._q_store = q
+            }
             return true
         } else {
             return false
         }
     }
+    __lq_check = () => {
+        console.log(this._q_store.map(q => q._song.title))
+        const c = this.__isCurrentLastSongLQ()
+        if (c) {
+            this._queue = cloneDeep(this._q_store)
+        }
+        return c
+    }
     start = async (vc: VoiceConnection): Promise<PlayerState> => {
+        console.log("-----------")
         if (!this._started) {
+            console.log("not started")
             if (!this._playing && this._queue.length > 0) {
+                console.log("not playing and queue isnot empty")
+                console.log(this._queue.map(qm => qm._song.title))
                 try {
                     this._playing = true
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0], startTime: new Date() }
-                    this._subscription = createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Pause } })
-                    const stream = await play.stream(this._queue[0].song.url, config.cookie)
+                    this._current = { track: this._queue[0]._song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
+                    this._subscription = this._subscription ? this._subscription : createAudioPlayer({ behaviors: { noSubscriber: NoSubscriberBehavior.Pause } })
+                    const stream = await play.stream(this._queue[0]._song.url, config.cookie)
                     this._subscription.play(createAudioResource(
                         stream.stream, { inputType: StreamType.Arbitrary }
                     ))
                     this._idle = false
                     vc.subscribe(this._subscription)
                     this._subscription.once(AudioPlayerStatus.Idle, () => {
-                        this.next(vc)
+                        if (this.__lq_check()) {
+                            this._playing = false
+                            this.start(vc)
+                        } else {
+                            this.next(vc)
+                        }
                     })
                     vc.on(VoiceConnectionStatus.Disconnected, () => {
                         this._playing = false
@@ -90,16 +118,21 @@ export class Player {
                     return { playing: false, response: "error", error: [PlayerError.UNKNOWN] }
                 }
             } else if (!this._playing && this._queue.length <= 0) {
+                console.log("Not playing and queue length 0")
                 this.__idle()
                 return { playing: false, response: "error", error: [PlayerError.NO_QUEUE] };
             } else if (this._playing && this._queue.length > 0) {
+                console.log("Playing and queue length not 0")
                 return { playing: true, response: "error", error: [PlayerError.ALREADY_PLAYING] }
             } else if (this._playing && this._queue.length <= 0) {
+                console.log("Playing and queue length 0")
                 return { playing: true, response: "error", error: [PlayerError.ALREADY_PLAYING, PlayerError.NO_QUEUE] };
             } else {
+                console.log("?????")
                 return { playing: this._playing, response: "error", error: [PlayerError.UNKNOWN] }
             }
         } else {
+            console.log("started")
             return { playing: this._playing, response: "error", error: [PlayerError.UNKNOWN] }
         }
     }
@@ -107,13 +140,18 @@ export class Player {
         if (!this._playing) {
             if (this._queue[which] != undefined) {
                 this._playing = true
-                this._current = { track: this._queue[which].song, index: which, by: this._queue[which].queuedBy, qmusic: this._queue[which], startTime: new Date() }
+                this._current = { track: this._queue[which]._song, index: which, by: this._queue[which]._by, qmusic: this._queue[which], startTime: new Date() }
                 this._subscription?.play(createAudioResource(
-                    (await play.stream(this._queue[which].song.url, config.cookie)).stream
+                    (await play.stream(this._queue[which]._song.url, config.cookie)).stream
                 ))
                 this._idle = false
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
-                    this.next(vc)
+                    if (this.__lq_check()) {
+                        this._playing = false
+                        this.start(vc)
+                    } else {
+                        this.next(vc)
+                    }
                 })
                 return { playing: true, response: "ok" }
             } else {
@@ -138,12 +176,28 @@ export class Player {
             }
         }, 300000)
     }
+    __lq = () => {
+        this._q_looping = true
+        this._q_store = cloneDeep(this._queue)
+    }
+    __isCurrentLastSongLQ = (): Boolean => {
+        if (this._q_store.length > 0) {
+            console.log("RRRRRRRRRRRRRRRRR")
+            console.log(this._q_store[this._q_store.length-1]._song.id)
+            console.log("RRRRRRRRRRRRRRRRR")
+            console.log(this._current?.track.id)
+            return this._current?.track.id === this._q_store[this._q_store.length-1]._song.id
+        } else {
+            console.log("BI BI BI BI")
+            return false
+        }
+    }
     next = async (vc: VoiceConnection): Promise<PlayerState> => {
         if (this._playing && this._current) {
             if (!this._looping) {
                 this._queue = this._queue.filter((s, i) => i !== this._current?.index)
                 if (this._queue[0]) {
-                    this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0], startTime: new Date() }
+                    this._current = { track: this._queue[0]._song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
                 }
             }
             if (this._queue[0] || this._looping) {
@@ -152,10 +206,17 @@ export class Player {
                     (await play.stream(this._current.track.url, config.cookie)).stream
                 ))
                 this._idle = false
-                const interaction = this._current.qmusic.qm
+                const interaction = this._current.qmusic._qm
                 interaction.followUp({embeds: [renderCurrent(this)]})
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
-                    this.next(vc)
+                    if (this.__lq_check()) {
+                        this._playing = false
+                        console.log("GAY GAY GAY GAY GAY")
+                        this.start(vc)
+                    } else {
+                        console.log("STRAIGHT STRAIGHT STRAIGHT")
+                        this.next(vc)
+                    }
                 })
                 return { playing: true, response: "ok" }
             } else {
@@ -166,11 +227,19 @@ export class Player {
             }
         } else {
             if (this._queue.length > 0) {
-                this._current = { track: this._queue[0].song, index: 0, by: this._queue[0].queuedBy, qmusic: this._queue[0], startTime: new Date() }
+                this._current = { track: this._queue[0]._song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
                 this._playing = true
                 this._subscription?.play(createAudioResource(
                     (await play.stream(this._current.track.url, config.cookie)).stream
                 ))
+                this._subscription?.on(AudioPlayerStatus.Idle, () => {
+                    if (this.__lq_check()) {
+                        this._playing = false
+                        this.start(vc)
+                    } else {
+                        this.next(vc)
+                    }
+                })
                 this._idle = false
                 return { playing: true, response: "ok" }
             } else {

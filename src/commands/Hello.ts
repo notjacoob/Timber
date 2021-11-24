@@ -1,7 +1,8 @@
 import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js'
 const config = require("../../config.json")
 import { client, session } from '../Bot'
-import { avg, Command, CommandDiagnostic, knexc } from '../Def'
+import { Command, CommandDiagnostic, knexc } from '../Def'
+import { avg } from '../helpers/FuncHelper'
 
 class HelloCmd implements Command {
     run = async (inter: CommandInteraction) => {

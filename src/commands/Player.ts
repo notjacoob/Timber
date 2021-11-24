@@ -20,7 +20,8 @@ const args = [
     "search",
     "addspotify",
     "shuffle",
-    "lyrics"
+    "lyrics",
+    "loopqueue"
 ];
 
 export class CmdPlayer implements Command {
@@ -83,6 +84,14 @@ export class CmdPlayer implements Command {
                             inter.reply({content: "Cannot find lyrics for that song!", ephemeral: true})
                         })
                     }
+                } else if (arg1 == "loopqueue") {
+                    player._q_looping = !player._q_looping
+                    if (player._q_looping) {
+                        player.__lq()
+                    } else {
+                        player._q_looping = false
+                    }
+                    inter.reply((player._q_looping ? "Looping " : "No longer looping ") + "queue!")
                 }
             }
         })

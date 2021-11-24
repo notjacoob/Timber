@@ -1,5 +1,5 @@
 import { CommandInteraction, Message, MessageEmbed } from "discord.js";
-import { SubCommand } from "../Def";
+import { SessionChangeWrapper, SubCommand } from "../Def";
 import * as play from 'play-dl'
 import { Video } from "play-dl/dist/YouTube/classes/Video";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
@@ -27,6 +27,7 @@ class CmdSearch implements SubCommand {
                         const url = res[Number(col.first()!!.content) - 1]!!.url!!
                         if (inter.guild?.me?.voice.channel !== opts.gm.voice.channel) {
                             opts.lg.getVoiceConnection?.disconnect()
+                            SessionChangeWrapper.wrap(opts.gm.guild!!.id, opts.gm.voice.channel.id, opts.gm.voice.channel.name, opts.gm.guild!!.name, opts.gm.user)
                             con = joinVoiceChannel({
                                 channelId: opts.gm.voice.channel.id,
                                 guildId: inter.guild!!.id,

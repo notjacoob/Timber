@@ -1,6 +1,6 @@
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { CommandInteraction, MessageEmbed } from "discord.js";
-import { SubCommand } from "../Def";
+import { SessionChangeWrapper, SubCommand } from "../Def";
 import * as play from 'play-dl'
 import { spotifyApi } from "../Bot";
 import { getSpotifyId, parseLength, randomColor, wrapVideo } from "../helpers/FuncHelper";
@@ -15,6 +15,7 @@ export class CmdAddspotify implements SubCommand {
             const url = inter.options.getString("url")!!
             if (inter.guild?.me?.voice.channel !== opts.gm.voice.channel) {
                 opts.lg.getVoiceConnection?.disconnect()
+                SessionChangeWrapper.wrap(opts.gm.guild!!.id, opts.gm.voice.channel.id, opts.gm.voice.channel.name, opts.gm.guild!!.name, opts.gm.user)
                 con = joinVoiceChannel({
                     channelId: opts.gm.voice.channel.id,
                     guildId: inter.guild!!.id,

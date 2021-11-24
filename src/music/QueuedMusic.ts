@@ -11,13 +11,4 @@ export class QueuedMusic {
         this._by = by
         this._qm=qm
     }
-    get song() {
-        return this._song
-    }
-    get queuedBy() {
-        return this._by
-    }
-    get qm() {
-        return this._qm
-    }
 }

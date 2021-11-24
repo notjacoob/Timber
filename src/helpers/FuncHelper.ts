@@ -99,7 +99,7 @@ export const renderCurrent = (player: Player): MessageEmbed => {
     const t = `[${parseLength(player._current?.track.channel.name)} - ${player._current?.track.title}](${player._current?.track.url})\n\n`
         + `${progressBar(secDifference(endTime,startTime!!), player._current?.track.durationInSec, 20)}\n\n`
         + `\`${ap} / ${new Date(Number(player._current?.track.durationInSec) * 1000).toISOString().substr(14, 5)}\`\n\n`
-        + `\`Queued by:\` ${player._current?.by.user.username}`
+        + `\`Queued by:\` ${player._current?.qmusic?._by?.user?.username ? player._current!!.qmusic._by.user.username : "???"}`
     const embed = new MessageEmbed()
     .setTitle('Now playing!')
     .setDescription(t)
@@ -144,6 +144,21 @@ export const getLyrics = (player: Player): Promise<string> => {
             } else {
                 res(t.data.lyrics)
             }
+        }).catch(err => {
+            rej()
         })
     })
+}
+
+export const avg = (arr: number[]): number => {
+    let t= 0
+    let c= 0
+    arr.forEach(n => {
+        t+=n
+        c++
+    })
+    return t/c
+}
+export const cloneDeep = (arr: Array<any>): Array<any> => {
+    return JSON.parse(JSON.stringify(arr))
 }

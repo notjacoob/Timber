@@ -18,7 +18,7 @@ class PlayerQueue implements SubCommand {
                 let songs = ""
                 let index = (8*(pn-1))+1
                 page.forEach(p => {
-                    songs += `\`${index}\`  [${p.song.title}](${p.song.url})  |  \`${new Date(Number(p.song.durationInSec) * 1000).toISOString().substr(11, 8)} Queued by: ${opts.gm.user.username}\`\n\n`
+                    songs += `\`${index}\`  [${p._song.title}](${p._song.url})  |  \`${new Date(Number(p._song.durationInSec) * 1000).toISOString().substr(11, 8)} Queued by: ${opts.gm.user.username}\`\n\n`
                     index++
                 })
                 embed.setDescription(songs)

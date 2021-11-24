@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, GuildMember } from "discord.js";
+import { ButtonInteraction, CommandInteraction, GuildMember, User } from "discord.js";
 import Knex from "knex";
 import { QueuedMusic } from "./music/QueuedMusic";
 import { Model } from 'objection'
@@ -13,7 +13,7 @@ export const knexc: Knex = knex({
         host: '127.0.0.1',
         user: 'postgres',
         password: config.pg_pw,
-        database: `${env == "prod" ? "postgres" : "postgres-dev"}`
+        database: env == "prod" ? `postgres` : 'postgres-dev'
     }
 })
 
@@ -22,6 +22,11 @@ export const knexc: Knex = knex({
 export class CommandDiagnostic extends Model {
     static get tableName() {
         return "CommandDiagnostics"
+    }
+}
+export class SessionChange extends Model {
+    static get tableName() {
+        return "SessionChanges"
     }
 }
 
@@ -116,12 +121,16 @@ export class CommandStatistics {
         })
     }
 }
-export const avg = (arr: number[]): number => {
-    let t= 0
-    let c= 0
-    arr.forEach(n => {
-        t+=n
-        c++
-    })
-    return t/c
+export class SessionChangeWrapper {
+    static wrap = async (sid: number, vcid: number, vcname: string, sname: string, who: User) => {
+        await SessionChange.query().insertGraph({
+            //@ts-ignore
+            serverId: sid,
+            vcId: vcid,
+            vcName: vcname,
+            serverName: sname,
+            userId: undefined ? -1 : who.id,
+            userName: undefined ? "undefined" : who.username
+        })
+    }
 }
