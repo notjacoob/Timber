@@ -85,12 +85,8 @@ export class Player {
         return c
     }
     start = async (vc: VoiceConnection): Promise<PlayerState> => {
-        console.log("-----------")
         if (!this._started) {
-            console.log("not started")
             if (!this._playing && this._queue.length > 0) {
-                console.log("not playing and queue isnot empty")
-                console.log(this._queue.map(qm => qm._song.title))
                 try {
                     this._playing = true
                     this._current = { track: this._queue[0]._song, index: 0, by: this._queue[0]._by, qmusic: this._queue[0], startTime: new Date() }
@@ -118,21 +114,16 @@ export class Player {
                     return { playing: false, response: "error", error: [PlayerError.UNKNOWN] }
                 }
             } else if (!this._playing && this._queue.length <= 0) {
-                console.log("Not playing and queue length 0")
                 this.__idle()
                 return { playing: false, response: "error", error: [PlayerError.NO_QUEUE] };
             } else if (this._playing && this._queue.length > 0) {
-                console.log("Playing and queue length not 0")
                 return { playing: true, response: "error", error: [PlayerError.ALREADY_PLAYING] }
             } else if (this._playing && this._queue.length <= 0) {
-                console.log("Playing and queue length 0")
                 return { playing: true, response: "error", error: [PlayerError.ALREADY_PLAYING, PlayerError.NO_QUEUE] };
             } else {
-                console.log("?????")
                 return { playing: this._playing, response: "error", error: [PlayerError.UNKNOWN] }
             }
         } else {
-            console.log("started")
             return { playing: this._playing, response: "error", error: [PlayerError.UNKNOWN] }
         }
     }
@@ -182,13 +173,10 @@ export class Player {
     }
     __isCurrentLastSongLQ = (): Boolean => {
         if (this._q_store.length > 0) {
-            console.log("RRRRRRRRRRRRRRRRR")
             console.log(this._q_store[this._q_store.length-1]._song.id)
-            console.log("RRRRRRRRRRRRRRRRR")
             console.log(this._current?.track.id)
             return this._current?.track.id === this._q_store[this._q_store.length-1]._song.id
         } else {
-            console.log("BI BI BI BI")
             return false
         }
     }
@@ -211,10 +199,8 @@ export class Player {
                 this._subscription?.once(AudioPlayerStatus.Idle, () => {
                     if (this.__lq_check()) {
                         this._playing = false
-                        console.log("GAY GAY GAY GAY GAY")
                         this.start(vc)
                     } else {
-                        console.log("STRAIGHT STRAIGHT STRAIGHT")
                         this.next(vc)
                     }
                 })
